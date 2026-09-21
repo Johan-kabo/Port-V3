@@ -1,0 +1,10 @@
+{
+  "description": "Showcases a professional portfolio with a clean, responsive 1920px-wide design to highlight creative work effectively for potential clients and employers.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
