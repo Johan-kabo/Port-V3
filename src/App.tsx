@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 const assetPathPrefix = "/assets";
 
 const imgArrowUpRight = `${assetPathPrefix}/986d1.svg`;
@@ -26,6 +28,88 @@ const imgEllipse1 = `${assetPathPrefix}/9f66d.svg`;
 const imgComponent1 = `${assetPathPrefix}/74068.svg`;
 const imgLightningBolt = `${assetPathPrefix}/77a05.svg`;
 
+function useMotionSystem() {
+  const [isCompact, setIsCompact] = useState(false);
+
+  useEffect(() => {
+    let previousScrollY = window.scrollY;
+    const updateScrollState = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - previousScrollY;
+
+      if (currentScrollY <= 32) {
+        setIsCompact(false);
+      } else if (scrollDelta > 3) {
+        setIsCompact(true);
+      } else if (scrollDelta < -3) {
+        setIsCompact(false);
+      }
+
+      previousScrollY = currentScrollY;
+    };
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 },
+    );
+
+    updateScrollState();
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    document.querySelectorAll(".reveal-on-scroll, .footer-reveal").forEach((element) => revealObserver.observe(element));
+
+    const magneticButtons = document.querySelectorAll<HTMLElement>(".magnetic-button");
+    const pointerHandlers = new Map<HTMLElement, (event: PointerEvent) => void>();
+    magneticButtons.forEach((button) => {
+      const handlePointerMove = (event: PointerEvent) => {
+        const bounds = button.getBoundingClientRect();
+        const x = (event.clientX - bounds.left - bounds.width / 2) * 0.12;
+        const y = (event.clientY - bounds.top - bounds.height / 2) * 0.12;
+        button.style.setProperty("--magnetic-x", `${x}px`);
+        button.style.setProperty("--magnetic-y", `${y}px`);
+      };
+      button.addEventListener("pointermove", handlePointerMove);
+      pointerHandlers.set(button, handlePointerMove);
+    });
+
+    const cursorLabel = document.querySelector<HTMLElement>(".project-cursor");
+    const projectCards = document.querySelectorAll<HTMLElement>(".project-card");
+    const updateCursorPosition = (event: PointerEvent) => {
+      cursorLabel?.style.setProperty("--cursor-x", `${event.clientX}px`);
+      cursorLabel?.style.setProperty("--cursor-y", `${event.clientY}px`);
+    };
+    const showProjectCursor = () => cursorLabel?.classList.add("is-visible");
+    const hideProjectCursor = () => cursorLabel?.classList.remove("is-visible");
+
+    window.addEventListener("pointermove", updateCursorPosition, { passive: true });
+    projectCards.forEach((card) => {
+      card.addEventListener("pointerenter", showProjectCursor);
+      card.addEventListener("pointerleave", hideProjectCursor);
+    });
+
+    return () => {
+      window.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("pointermove", updateCursorPosition);
+      revealObserver.disconnect();
+      magneticButtons.forEach((button) => {
+        const handler = pointerHandlers.get(button);
+        if (handler) button.removeEventListener("pointermove", handler);
+      });
+      projectCards.forEach((card) => {
+        card.removeEventListener("pointerenter", showProjectCursor);
+        card.removeEventListener("pointerleave", hideProjectCursor);
+      });
+    };
+  }, []);
+
+  return isCompact;
+}
+
 function ArrowUpRight({ className }: { className?: string }) {
   return (
     <img alt="" className={className || "w-6 h-6"} src={imgArrowUpRight} />
@@ -33,8 +117,10 @@ function ArrowUpRight({ className }: { className?: string }) {
 }
 
 function Navbar() {
+  const isCompact = useMotionSystem();
+
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+    <nav className={`site-nav fixed top-6 z-50 ${isCompact ? "is-compact" : "left-1/2 -translate-x-1/2"}`}>
       <div
         className="flex items-center justify-between overflow-hidden pl-[10px] pr-[26px] py-[14px] rounded-full shadow-[inset_0px_4px_4px_0px_rgba(255,255,255,0.25)]"
         style={{ background: "#1e1e1e", gap: "140px", height: "74px" }}
@@ -50,7 +136,7 @@ function Navbar() {
         </div>
 
         {/* Links */}
-        <div className="flex items-center gap-[53px]">
+        <div className="nav-links flex items-center gap-[53px]">
           <div
             className="flex items-center gap-[39px] text-[rgba(255,255,255,0.5)] text-[20px] tracking-[-0.5px] text-center"
             style={{ fontFamily: "'DM Sans:Medium', 'DM Sans', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14' }}
@@ -67,6 +153,13 @@ function Navbar() {
             Contact
           </a>
         </div>
+
+        <div className="compact-menu-indicator" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
       </div>
     </nav>
   );
@@ -74,17 +167,17 @@ function Navbar() {
 
 function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden" style={{ background: "#f5f5f3", minHeight: 826 }}>
+    <section className="hero-section relative w-full overflow-hidden" style={{ background: "#f5f5f3", minHeight: 826 }}>
       {/* Grid background */}
-      <div className="absolute inset-0 opacity-60 overflow-hidden pointer-events-none" style={{ left: "50%", transform: "translateX(-50%)", top: -774, width: 2440 }}>
+      <div className="absolute inset-0 opacity-60 overflow-hidden pointer-events-none" style={{ left: "calc(50% + 13.74px)", transform: "translateX(-50%)", top: -774.21, width: 2439.48 }}>
         {Array.from({ length: 12 }).map((_, row) => (
           <div key={row} className="flex">
             {Array.from({ length: 8 }).map((_, col) => (
               <div
                 key={col}
                 style={{
-                  width: 305,
-                  height: 236,
+                  width: 304.935,
+                  height: 235.869,
                   border: "1.44px solid #dddcdb",
                   flexShrink: 0
                 }}
@@ -98,30 +191,31 @@ function HeroSection() {
       <div
         className="absolute pointer-events-none"
         style={{
-          width: "100%",
-          height: "100%",
-          top: 0,
-          left: 0,
-          background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,1) 0%, rgba(217,217,217,0) 100%)"
+          width: 2544,
+          height: 1142,
+          top: "calc(50% + 10px)",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(217,217,217,0) 0%, rgba(255,255,255,1) 100%)"
         }}
       />
 
       {/* Hero content */}
-      <div className="relative flex flex-col items-center gap-12 px-6 pt-[262px] pb-[96px]">
+      <div className="hero-content relative flex flex-col items-center gap-12 px-6 pt-[262px] pb-[96px]">
         {/* Headline row 1 */}
         <div className="flex flex-col items-center gap-6 w-full max-w-[1920px]">
           <div className="flex flex-col items-center gap-[18px] w-full">
             {/* "Hello, je suis [photo] Johan KABO" */}
-            <div className="flex items-center gap-3 justify-center" style={{ height: 81 }}>
+            <div className="hero-line reveal-stagger flex items-center gap-3 justify-center whitespace-nowrap" style={{ height: 81 }}>
               <span
-                className="text-[#171717] text-[62px] tracking-[-3px] leading-none opacity-50"
+                className="text-[#171717] text-[62px] tracking-[-3px] leading-none opacity-50 flex-shrink-0"
                 style={{ fontFamily: "'Bricolage Grotesque:Regular', 'Bricolage Grotesque', sans-serif", fontWeight: 400, fontVariationSettings: '"opsz" 14, "wdth" 100' }}
               >
                 Hello, je suis
               </span>
               {/* Photo pill */}
               <div
-                className="rounded-full overflow-hidden border-[1.5px] border-black flex-shrink-0 relative"
+                className="hero-pill hero-float rounded-full overflow-hidden border-[1.5px] border-black flex-shrink-0 relative"
                 style={{ width: 105, height: 71, background: "#d6ccf0" }}
               >
                 <img
@@ -132,7 +226,7 @@ function HeroSection() {
                 />
               </div>
               <span
-                className="text-[#6750a4] text-[62px] tracking-[-3px] leading-none"
+                className="text-[#6750a4] text-[62px] tracking-[-3px] leading-none flex-shrink-0"
                 style={{ fontFamily: "'Bricolage Grotesque:Regular', 'Bricolage Grotesque', sans-serif", fontWeight: 400, fontVariationSettings: '"opsz" 14, "wdth" 100' }}
               >
                 Johan KABO
@@ -140,12 +234,12 @@ function HeroSection() {
             </div>
 
             {/* "UI/UX Designer, Je transformes [pill] les problèmes" */}
-            <div className="flex items-center gap-3 justify-center" style={{ height: 81 }}>
+            <div className="hero-line reveal-stagger flex items-center gap-3 justify-center whitespace-nowrap" style={{ height: 81 }}>
               <span
-                className="text-[#2c2c2c] text-[62px] tracking-[-3px] leading-none"
+                className="text-[#2c2c2c] text-[62px] tracking-[-3px] leading-none flex-shrink-0"
                 style={{ fontFamily: "'Bricolage Grotesque:Medium', 'Bricolage Grotesque', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14, "wdth" 100' }}
               >
-                UI/UX Designer ,Je tranformes
+                UI/UX Designer , Je tranformes
               </span>
               {/* Pills with image */}
               <div
@@ -155,7 +249,7 @@ function HeroSection() {
                 <img src={imgFrame47} alt="" className="absolute object-cover" style={{ width: "253%", height: "208%", left: "-26%", top: "-53%" }} />
               </div>
               <span
-                className="text-[#1e1e1e] text-[62px] tracking-[-3px] leading-none"
+                className="text-[#1e1e1e] text-[62px] tracking-[-3px] leading-none flex-shrink-0"
                 style={{ fontFamily: "'Bricolage Grotesque:Medium', 'Bricolage Grotesque', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14, "wdth" 100' }}
               >
                 les problèmes
@@ -163,9 +257,9 @@ function HeroSection() {
             </div>
 
             {/* "en produits numériques [pill] simples." */}
-            <div className="flex items-center gap-3 justify-center" style={{ height: 81 }}>
+            <div className="hero-line reveal-stagger flex items-center gap-3 justify-center whitespace-nowrap" style={{ height: 81 }}>
               <span
-                className="text-[#2c2c2c] text-[62px] tracking-[-3px] leading-none"
+                className="text-[#2c2c2c] text-[62px] tracking-[-3px] leading-none flex-shrink-0"
                 style={{ fontFamily: "'Bricolage Grotesque:Medium', 'Bricolage Grotesque', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14, "wdth" 100' }}
               >
                 en produits numériques
@@ -174,10 +268,11 @@ function HeroSection() {
                 className="rounded-full overflow-hidden border-[1.5px] border-black flex-shrink-0 relative"
                 style={{ width: 105, height: 71, background: "rgba(127,127,127,0.4)" }}
               >
+                <img src={imgFrame47} alt="" className="absolute object-cover" style={{ width: "253%", height: "208%", left: "-26%", top: "-53%" }} />
                 <img src={imgImage2076} alt="" className="absolute object-cover" style={{ width: 110, height: 109, left: "50%", top: "50%", transform: "translate(-50%, -55%)" }} />
               </div>
               <span
-                className="text-[#1e1e1e] text-[62px] tracking-[-3px] leading-none"
+                className="text-[#1e1e1e] text-[62px] tracking-[-3px] leading-none flex-shrink-0"
                 style={{ fontFamily: "'Bricolage Grotesque:Medium', 'Bricolage Grotesque', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14, "wdth" 100' }}
               >
                 simples.
@@ -187,7 +282,7 @@ function HeroSection() {
 
           {/* Subtitle */}
           <p
-            className="text-[#8d8d8d] text-[28px] tracking-[-0.84px] text-center leading-normal"
+            className="hero-subtitle reveal-stagger text-[#8d8d8d] text-[28px] tracking-[-0.84px] text-center leading-normal"
             style={{ fontFamily: "'DM Sans:Medium', 'DM Sans', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14' }}
           >
             UX/UI · Produit · IA · Technologie
@@ -195,10 +290,10 @@ function HeroSection() {
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex items-center gap-7">
+        <div className="hero-cta reveal-stagger flex items-center gap-[26.361px]">
           <button
-            className="flex items-center gap-3 overflow-hidden pl-[10px] pr-7 py-[26px] rounded-full cursor-pointer relative hover:opacity-90 transition-opacity"
-            style={{ height: 74, background: "#1e1e1e", boxShadow: "inset 0px 4.4px 4.4px 0px rgba(255,255,255,0.25)" }}
+            className="magnetic-button flex items-center gap-3 overflow-hidden pl-[10px] pr-7 py-[26px] rounded-full cursor-pointer relative hover:opacity-90 transition-opacity"
+            style={{ height: 73.592, background: "#1e1e1e", boxShadow: "inset 0px 4.394px 4.394px 0px rgba(255,255,255,0.25)" }}
           >
             <div className="bg-white overflow-hidden rounded-full flex items-center justify-center p-[15px]" style={{ width: 54, height: 54 }}>
               <img src={imgFamiconsMailOpen} alt="" className="w-6 h-6" />
@@ -212,8 +307,8 @@ function HeroSection() {
           </button>
 
           <button
-            className="bg-white border border-[#e1e1e1] flex items-center justify-center px-6 rounded-full cursor-pointer hover:bg-gray-50 transition-colors shadow-[0px_4.4px_4.4px_0px_rgba(213,213,213,0.25)]"
-            style={{ height: 74 }}
+            className="magnetic-button bg-white border border-[#e1e1e1] flex items-center justify-center px-6 rounded-full cursor-pointer hover:bg-gray-50 transition-colors shadow-[0px_4.4px_4.4px_0px_rgba(213,213,213,0.25)]"
+            style={{ height: 73.592 }}
           >
             <span
               className="text-[#1e1e1e] text-[20px] tracking-[-1.1px] leading-none"
@@ -322,7 +417,7 @@ function ClientLogos() {
     >
       <div
         className="flex items-center mx-auto"
-        style={{ maxWidth: 1608, padding: "0 52px", gap: 38, height: 73 }}
+        style={{ maxWidth: 1608, padding: "0 52px", gap: 38, height: 124 }}
       >
         {/* Label — sur la même ligne, ne rétrécit pas */}
         <p
@@ -330,7 +425,7 @@ function ClientLogos() {
           style={{
             fontFamily: "'Inter:Medium', Inter, sans-serif",
             fontWeight: 500,
-            fontSize: 24.754,
+            fontSize: 24,
             letterSpacing: "-0.786px",
             whiteSpace: "nowrap",
           }}
@@ -341,7 +436,7 @@ function ClientLogos() {
         {/* Ticker avec masque de fondu gauche/droite */}
         <div
           className="flex-1 overflow-hidden relative opacity-70"
-          style={{ height: 73 }}
+          style={{ height: 124 }}
         >
           {/* Masque CSS : transparent sur les bords, opaque au centre */}
           <div
@@ -378,9 +473,9 @@ function ProjectCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-[17px]" style={{ width: "calc(50% - 32px)" }}>
+    <div className="project-card reveal-on-scroll flex flex-col gap-[17px]" style={{ width: "calc(50% - 32px)" }}>
       <div
-        className="bg-[#f5f5f5] rounded-[20px] overflow-hidden p-[18px] flex flex-col"
+        className="bg-[#f5f5f5] rounded-[20px] overflow-hidden px-[18px] py-[20px] flex flex-col"
         style={{ height: 613 }}
       >
         {children}
@@ -409,7 +504,8 @@ function ProjectCard({
 
 function ProjectsSection() {
   return (
-    <section id="projets" className="bg-white px-[152px] py-[96px]">
+    <section id="projets" className="projects-section bg-white px-[152px] py-[96px]">
+      <div className="project-cursor" aria-hidden="true">View project</div>
       {/* Heading */}
       <h2
         className="text-[62px] tracking-[-3px] mb-[62px]"
@@ -421,17 +517,17 @@ function ProjectsSection() {
       </h2>
 
       {/* Grid */}
-      <div className="flex flex-col gap-16 max-w-[1608px] mx-auto">
+      <div className="projects-grid flex flex-col gap-16 max-w-[1608px] mx-auto">
         {/* Row 1 */}
-        <div className="flex gap-16">
+        <div className="projects-row flex gap-16">
           {/* DanmaGenesis */}
           <ProjectCard title="DanmaGenesis" subtitle="Plateforme IA de text to audio et text to image">
             <div className="flex gap-[13px] flex-1">
               <div className="flex-1 bg-[#e6e6e6] rounded-[14px] overflow-hidden relative">
-                <img src={imgImage2080} alt="DanmaGenesis" className="absolute object-cover pointer-events-none" style={{ width: 655, height: 879, left: -147, top: 0 }} />
+                <img src={imgImage2080} alt="DanmaGenesis" className="project-parallax absolute max-w-none pointer-events-none" style={{ width: 655, height: 879, left: -147, top: 0.23 }} />
               </div>
               <div className="flex-1 bg-[#e6e6e6] rounded-[14px] overflow-hidden relative">
-                <img src={imgImage2081} alt="DanmaGenesis 2" className="absolute object-cover pointer-events-none" style={{ width: 459, height: 616, right: 0, top: "50%", transform: "translateY(-50%) translateY(24px)" }} />
+                <img src={imgImage2081} alt="DanmaGenesis 2" className="project-parallax absolute max-w-none pointer-events-none" style={{ width: 459, height: 616, right: 0, top: "calc(50% + 23.73px)", transform: "translateY(-50%)" }} />
               </div>
             </div>
           </ProjectCard>
@@ -447,7 +543,7 @@ function ProjectsSection() {
                 <img
                   src={imgIPhone15ProMockup}
                   alt="Coach Vitale mockup"
-                  className="absolute object-cover pointer-events-none"
+                  className="absolute max-w-none pointer-events-none"
                   style={{ width: 459, height: 614, left: 22, top: 150 }}
                 />
                 <p
@@ -466,11 +562,11 @@ function ProjectsSection() {
                   className="absolute flex items-center justify-center"
                   style={{ width: 405, height: 547, left: 55, top: -214, transform: "rotate(7.14deg)" }}
                 >
-                  <div className="overflow-hidden" style={{ width: 344, height: 508 }}>
-                    <img src={imgMockupSmartphoneGauche} alt="" className="absolute object-cover" style={{ width: "100.2%", height: "154.8%", left: "-0.1%", top: "-20.6%" }} />
+                  <div className="relative overflow-hidden" style={{ width: 344, height: 508 }}>
+                    <img src={imgMockupSmartphoneGauche} alt="" className="absolute max-w-none" style={{ width: "100.18%", height: "154.77%", left: "-0.12%", top: "-20.62%" }} />
                   </div>
                 </div>
-                <img src={imgEllipse1} alt="" className="absolute pointer-events-none" style={{ width: 577, height: 511, left: 0.5, top: 305 }} />
+                <img src={imgEllipse1} alt="" className="absolute max-w-none pointer-events-none" style={{ width: 577.778, height: 511, left: 0.5, top: 305.23 }} />
                 <p
                   className="absolute text-right text-[36px] tracking-[-1.8px] leading-none"
                   style={{
@@ -478,7 +574,7 @@ function ProjectsSection() {
                     fontWeight: 400,
                     color: "#38b000",
                     right: 0,
-                    bottom: 80,
+                    top: 426.23,
                     width: 258,
                   }}
                 >
@@ -490,7 +586,7 @@ function ProjectsSection() {
         </div>
 
         {/* Row 2 */}
-        <div className="flex gap-16">
+        <div className="projects-row flex gap-16">
           {/* YaMo NXT LVL */}
           <ProjectCard title="YaMo NXT LVL" subtitle="Plateforme de la plus grande communauté jeune...">
             <div className="flex-1 relative overflow-hidden rounded-[14px]" style={{ background: "linear-gradient(180deg, #131313 52%, #ffcb05 136%)" }}>
@@ -513,10 +609,10 @@ function ProjectsSection() {
           <ProjectCard title="MützigSTAR" subtitle="Site web du plus grand concours musical ...">
             <div className="flex gap-[13px] flex-1">
               <div className="flex-1 bg-[#e6e6e6] rounded-[14px] overflow-hidden relative">
-                <img src={imgImage2080} alt="MützigSTAR" className="absolute object-cover pointer-events-none" style={{ width: 655, height: 879, left: -147, top: 0 }} />
+                <img src={imgImage2080} alt="MützigSTAR" className="absolute max-w-none pointer-events-none" style={{ width: 655, height: 879, left: -147, top: 0.23 }} />
               </div>
               <div className="flex-1 bg-[#e6e6e6] rounded-[14px] overflow-hidden relative">
-                <img src={imgImage2081} alt="MützigSTAR 2" className="absolute object-cover pointer-events-none" style={{ width: 474, height: 636, left: -105.5, top: "50%", transform: "translateY(-50%) translateY(1px)" }} />
+                <img src={imgImage2081} alt="MützigSTAR 2" className="absolute max-w-none pointer-events-none" style={{ width: 474, height: 636, left: -105.5, top: "calc(50% + 0.73px)", transform: "translateY(-50%)" }} />
               </div>
             </div>
           </ProjectCard>
@@ -559,7 +655,7 @@ function AboutSection() {
         {/* Left: photo + name */}
         <div className="flex flex-col gap-6 flex-shrink-0" style={{ width: 508 }}>
           <div
-            className="rounded-[32px] overflow-hidden relative"
+            className="about-photo rounded-[32px] overflow-hidden relative"
             style={{
               height: 595,
               background: "radial-gradient(ellipse at 50% 50%, #f8f8f8 0%, #e2e2e2 100%)"
@@ -568,7 +664,7 @@ function AboutSection() {
             <img
               src={imgImage2074}
               alt="Johan kabo"
-              className="absolute object-cover pointer-events-none"
+              className="absolute max-w-none object-cover pointer-events-none"
               style={{ width: 692, height: 923, left: "50%", transform: "translateX(calc(-50% - 81px))", top: 0 }}
             />
           </div>
@@ -623,14 +719,19 @@ function AboutSection() {
             >
               Mon parcours professionnel
             </h3>
-            <div className="relative" style={{ width: 506 }}>
+            <div className="work-history-stack relative" style={{ width: 506 }}>
               {workHistory.map((item, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-[20px] border border-[#dedede] flex items-end justify-between p-[21px] relative"
+                  className="work-history-card bg-white rounded-[20px] border border-[#dedede] flex items-end justify-between p-[21px] relative"
                   style={{
                     boxShadow: "0px 0.8px 0.8px -1.2px rgba(0,0,0,0.07), 0px 2.3px 2.3px -2.4px rgba(0,0,0,0.07), 0px 6.1px 6.1px -3.6px rgba(0,0,0,0.06), 0px 19.2px 19.2px -4.8px rgba(0,0,0,0.03)",
-                    marginTop: i === 0 ? 0 : -8,
+                    height: 98.37,
+                    width: i === 0 ? "100%" : i === 1 ? "95%" : "90%",
+                    position: i === 0 ? "relative" : "absolute",
+                    left: i === 0 ? undefined : i === 1 ? "2.5%" : "5%",
+                    top: i === 0 ? undefined : i === 1 ? 13.26 : 26.5,
+                    marginTop: 0,
                     zIndex: workHistory.length - i,
                   }}
                 >
@@ -685,11 +786,11 @@ function DesignTechSection() {
 
   return (
     <section id="services" className="bg-white px-[154px] py-[96px]">
-      <div className="max-w-[1610px]">
+      <div className="design-tech-layout max-w-[1610px]">
         {/* Heading row */}
         <div className="flex items-start justify-between mb-[27px]">
           <h2
-            className="text-[62px] tracking-[-3px] leading-none"
+            className="reveal-on-scroll text-[62px] tracking-[-3px] leading-none"
             style={{ fontFamily: "'DM Sans:SemiBold', 'DM Sans', sans-serif", fontWeight: 600, fontVariationSettings: '"opsz" 14', color: "#2c2c2c" }}
           >
             Design x Technologie
@@ -706,13 +807,13 @@ function DesignTechSection() {
         {/* Content row */}
         <div className="flex gap-[61px] items-end" style={{ width: 1608 }}>
           {/* Left: placeholder images */}
-          <div className="relative flex-shrink-0" style={{ width: 806, height: 664 }}>
+          <div className="design-tech-visual relative flex-shrink-0" style={{ width: 806, height: 664 }}>
             <div className="absolute bg-[#efefef] rounded-[20px]" style={{ width: 433, height: 411, left: 14, top: 4 }} />
             <div className="absolute bg-[#efefef] rounded-[20px]" style={{ width: 433, height: 137, left: 299, top: 421 }} />
           </div>
 
           {/* Right: skill list with progress bar */}
-          <div className="flex gap-[86px] items-center flex-1">
+          <div className="design-tech-skills flex gap-[86px] items-center flex-1">
             {/* Progress bar */}
             <div className="flex flex-col gap-2" style={{ height: 665, width: 6 }}>
               {skills.map((s, i) => (
@@ -731,7 +832,7 @@ function DesignTechSection() {
             {/* Skills */}
             <div className="flex flex-col gap-16" style={{ width: 661 }}>
               {skills.map((s, i) => (
-                <div key={i} className="flex gap-4 items-start">
+                <div key={i} className="skill-row reveal-on-scroll flex gap-4 items-start">
                   <div
                     className="flex-shrink-0 flex items-center justify-center p-[10.8px] rounded-[32px] relative"
                     style={{
@@ -791,26 +892,26 @@ function CTACard() {
         <div
           className="absolute overflow-hidden"
           style={{
-            width: 476,
-            height: 128,
+            width: 476.043,
+            height: 128.753,
             top: 0,
             left: 1066,
-            borderRadius: 28,
+            borderRadius: 28.562,
             background: "#000",
-            boxShadow: "0px 0px 0px 1.19px #828282, inset 0px 2.38px 4.76px 0px rgba(255,255,255,0.4)",
+            boxShadow: "0px 0.882px 0.882px -0.893px rgba(0,0,0,0.33), 0px 2.401px 2.401px -1.785px rgba(0,0,0,0.32), 0px 5.273px 5.273px -2.678px rgba(0,0,0,0.3), 0px 11.704px 11.704px -3.57px rgba(0,0,0,0.25), 0px 29.752px 29.752px -4.463px rgba(0,0,0,0.11), 0px 0px 0px 1.19px #828282, inset 0px 2.38px 4.76px 0px rgba(255,255,255,0.4)",
             transform: "rotate(3deg)",
           }}
         >
           {/* Lightning bolt decoration */}
           <div
             className="absolute flex items-center justify-center"
-            style={{ width: 329, height: 329, right: -60, bottom: -22, transform: "rotate(25deg)" }}
+            style={{ width: 328.968, height: 328.968, right: -59.76, bottom: -21.92, transform: "rotate(25deg)" }}
           >
             <div
               className="relative"
               style={{
-                width: 248,
-                height: 248,
+                width: 247.544,
+                height: 247.544,
                 maskImage: `url("${imgLightningBolt}")`,
                 WebkitMaskImage: `url("${imgLightningBolt}")`,
                 maskSize: "135% 135%",
@@ -823,28 +924,28 @@ function CTACard() {
             </div>
           </div>
 
-          <div className="relative z-10 p-[28px] flex flex-col gap-2">
+          <div className="relative z-10 p-[28.562px] flex flex-col gap-2">
             {/* "Recrutez l'expertise" badge */}
-            <div className="inline-flex items-center justify-center px-[14px] py-[8px] rounded-full bg-white self-start" style={{ boxShadow: "0px 0.7px 0.7px -1.5px rgba(0,0,0,0.18)" }}>
+            <div className="relative inline-flex h-[35.692px] items-center justify-center px-[14.281px] py-[14.281px] rounded-full bg-white self-start" style={{ boxShadow: "0px 0.717px 0.717px -1.488px rgba(0,0,0,0.18), 0px 2.724px 2.724px -2.975px rgba(0,0,0,0.16), 0px 11.901px 11.901px -4.463px rgba(0,0,0,0.06)" }}>
               <span
-                className="text-[14px] text-black tracking-[-0.14px] leading-none"
+                className="text-[13.805px] text-black tracking-[-0.1428px] leading-[15.995px]"
                 style={{ fontFamily: "'Inter:Semi Bold', Inter, sans-serif", fontWeight: 600 }}
               >
                 Recrutez l'expertise
               </span>
-              <div className="absolute inset-0 rounded-full border border-[#f0f0f0]" />
+              <div className="absolute inset-0 rounded-full border-[1.19px] border-[#f0f0f0]" />
             </div>
 
             {/* "Design à la demande." */}
             <span
-              className="text-[#b8b8b8] text-[25px] tracking-[-0.8px] leading-[36.7px]"
+              className="text-[#b8b8b8] text-[25.111px] tracking-[-0.7855px] leading-[36.655px]"
               style={{ fontFamily: "'Inter:Medium', Inter, sans-serif", fontWeight: 500 }}
             >
               Design à la demande.
             </span>
           </div>
 
-          <div className="absolute inset-0 rounded-[28px] border border-black pointer-events-none" style={{ height: 128 }} />
+          <div className="absolute inset-0 rounded-[28.562px] border-[1.19px] border-black pointer-events-none" style={{ height: 128.753 }} />
         </div>
       </div>
     </section>
@@ -859,7 +960,7 @@ function Footer() {
         <div className="flex flex-col gap-0">
           <div className="flex items-center justify-between">
             <h2
-              className="text-white text-[76px] tracking-[-2.28px] leading-[72px]"
+              className="footer-reveal text-white text-[76px] tracking-[-2.28px] leading-[72px]"
               style={{ fontFamily: "'Inter:Medium', Inter, sans-serif", fontWeight: 500 }}
             >
               Hello à tous,
@@ -872,7 +973,7 @@ function Footer() {
             </span>
           </div>
           <h2
-            className="text-[#828282] text-[71px] tracking-[-2.28px] leading-[72px]"
+            className="footer-reveal text-[#828282] text-[71px] tracking-[-2.28px] leading-[72px]"
             style={{ fontFamily: "'Inter:Medium', Inter, sans-serif", fontWeight: 500 }}
           >
             des solutions pour chacun.
@@ -943,7 +1044,7 @@ function Footer() {
 
 export default function App() {
   return (
-    <div className="min-w-[1280px] w-full">
+    <div className="portfolio-shell w-full">
       <Navbar />
       <HeroSection />
       <ClientLogos />
@@ -952,6 +1053,7 @@ export default function App() {
       <DesignTechSection />
       <CTACard />
       <Footer />
+      <div className="bottom-scroll-blur" aria-hidden="true" />
     </div>
   );
 }
