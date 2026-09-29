@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import DesignTechSection from "./DesignTechSection";
 
 const assetPathPrefix = "/assets";
 
@@ -311,6 +312,8 @@ function HeroSection({ onOpenContact }: { onOpenContact: () => void }) {
           </button>
 
           <button
+            type="button"
+            onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" })}
             className="magnetic-button bg-white border border-[#e1e1e1] flex items-center justify-center px-6 rounded-full cursor-pointer hover:bg-gray-50 transition-colors shadow-[0px_4.4px_4.4px_0px_rgba(213,213,213,0.25)]"
             style={{ height: 73.592 }}
           >
@@ -775,7 +778,7 @@ function AboutSection() {
   );
 }
 
-function DesignTechSection() {
+function LegacyDesignTechSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [activeSkill, setActiveSkill] = useState(0);
   const skills = [
@@ -1172,7 +1175,10 @@ function ContactOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     if (!dialog) return;
 
     const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
     setSubmitState("idle");
     dialog.focus();
 
@@ -1211,6 +1217,7 @@ function ContactOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", fitContent);
       window.visualViewport?.removeEventListener("resize", fitContent);
