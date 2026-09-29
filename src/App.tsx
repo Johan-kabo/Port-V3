@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const assetPathPrefix = "/assets";
 
 const imgArrowUpRight = `${assetPathPrefix}/986d1.svg`;
+const imgCvDocument = `${assetPathPrefix}/cv-document.svg`;
 const imgImage88 = `${assetPathPrefix}/362d9.png`;
 const imgFrame47 = `${assetPathPrefix}/7fe5d.png`;
 const imgImage2076 = `${assetPathPrefix}/c0389.png`;
@@ -116,7 +117,7 @@ function ArrowUpRight({ className }: { className?: string }) {
   );
 }
 
-function Navbar() {
+function Navbar({ onOpenContact }: { onOpenContact: () => void }) {
   const isCompact = useMotionSystem();
 
   return (
@@ -142,16 +143,17 @@ function Navbar() {
             style={{ fontFamily: "'DM Sans:Medium', 'DM Sans', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14' }}
           >
             <a href="#projets" className="hover:text-white transition-colors cursor-pointer leading-none">Projets</a>
-            <a href="#projets" className="hover:text-white transition-colors cursor-pointer leading-none">Réalisations</a>
+            <a href="#moi" className="hover:text-white transition-colors cursor-pointer leading-none">Moi</a>
             <a href="#services" className="hover:text-white transition-colors cursor-pointer leading-none">Services</a>
           </div>
-          <a
-            href="#contact"
+          <button
+            type="button"
+            onClick={onOpenContact}
             className="bg-white border border-[#e1e1e1] flex items-center justify-center px-[25px] py-[11px] rounded-full shadow-[0px_2px_2px_0px_rgba(233,233,233,0.25)] text-black text-[20px] tracking-[-1px] text-center hover:bg-gray-100 transition-colors"
             style={{ fontFamily: "'DM Sans:Medium', 'DM Sans', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14' }}
           >
             Contact
-          </a>
+          </button>
         </div>
 
         <div className="compact-menu-indicator" aria-hidden="true">
@@ -165,7 +167,7 @@ function Navbar() {
   );
 }
 
-function HeroSection() {
+function HeroSection({ onOpenContact }: { onOpenContact: () => void }) {
   return (
     <section className="hero-section relative w-full overflow-hidden" style={{ background: "#f5f5f3", minHeight: 826 }}>
       {/* Grid background */}
@@ -292,6 +294,8 @@ function HeroSection() {
         {/* CTA Buttons */}
         <div className="hero-cta reveal-stagger flex items-center gap-[26.361px]">
           <button
+            type="button"
+            onClick={onOpenContact}
             className="magnetic-button flex items-center gap-3 overflow-hidden pl-[10px] pr-7 py-[26px] rounded-full cursor-pointer relative hover:opacity-90 transition-opacity"
             style={{ height: 73.592, background: "#1e1e1e", boxShadow: "inset 0px 4.394px 4.394px 0px rgba(255,255,255,0.25)" }}
           >
@@ -567,6 +571,12 @@ function ProjectsSection() {
                   </div>
                 </div>
                 <img src={imgEllipse1} alt="" className="absolute max-w-none pointer-events-none" style={{ width: 577.778, height: 511, left: 0.5, top: 305.23 }} />
+                <img
+                  src={imgIPhone15ProMockup}
+                  alt=""
+                  className="absolute max-w-none pointer-events-none"
+                  style={{ width: 459, height: 614, left: -351.5, top: 144.23 }}
+                />
                 <p
                   className="absolute text-right text-[36px] tracking-[-1.8px] leading-none"
                   style={{
@@ -641,7 +651,7 @@ function AboutSection() {
   ];
 
   return (
-    <section className="bg-white px-[156px] py-[96px]">
+    <section id="moi" className="bg-white px-[156px] py-[96px]">
       {/* Heading */}
       <h2
         className="text-[62px] tracking-[-3px] leading-none mb-[64px]"
@@ -766,6 +776,8 @@ function AboutSection() {
 }
 
 function DesignTechSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [activeSkill, setActiveSkill] = useState(0);
   const skills = [
     {
       title: "Pensée Produit & UX/UI System",
@@ -784,8 +796,27 @@ function DesignTechSection() {
     },
   ];
 
+  useEffect(() => {
+    const updateActiveSkill = () => {
+      const section = sectionRef.current;
+      if (!section) return;
+
+      const scrollableDistance = section.offsetHeight - window.innerHeight;
+      const progress = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / scrollableDistance));
+      setActiveSkill(Math.min(skills.length - 1, Math.floor(progress * skills.length)));
+    };
+
+    updateActiveSkill();
+    window.addEventListener("scroll", updateActiveSkill, { passive: true });
+    window.addEventListener("resize", updateActiveSkill);
+    return () => {
+      window.removeEventListener("scroll", updateActiveSkill);
+      window.removeEventListener("resize", updateActiveSkill);
+    };
+  }, [skills.length]);
+
   return (
-    <section id="services" className="bg-white px-[154px] py-[96px]">
+    <section ref={sectionRef} id="services" className="design-tech-section bg-white px-[154px] py-[96px]">
       <div className="design-tech-layout max-w-[1610px]">
         {/* Heading row */}
         <div className="flex items-start justify-between mb-[27px]">
@@ -805,26 +836,42 @@ function DesignTechSection() {
         </div>
 
         {/* Content row */}
-        <div className="flex gap-[61px] items-end" style={{ width: 1608 }}>
-          {/* Left: placeholder images */}
+        <div className="design-tech-stage flex gap-[61px] items-center" style={{ width: 1608 }}>
+          {/* Animated visual workspace */}
           <div className="design-tech-visual relative flex-shrink-0" style={{ width: 806, height: 664 }}>
-            <div className="absolute bg-[#efefef] rounded-[20px]" style={{ width: 433, height: 411, left: 14, top: 4 }} />
-            <div className="absolute bg-[#efefef] rounded-[20px]" style={{ width: 433, height: 137, left: 299, top: 421 }} />
+            <div className="visual-window absolute rounded-[20px]" data-state={activeSkill}>
+              <div className="visual-window-bar"><span /><span /><span /></div>
+              <div className="visual-canvas">
+                <div className="visual-grid" />
+                <div className="visual-panel visual-panel-main">
+                  <div className="visual-panel-line visual-panel-line-wide" />
+                  <div className="visual-panel-line" />
+                  <div className="visual-panel-line visual-panel-line-short" />
+                  <div className="visual-panel-button" />
+                </div>
+                <div className="visual-panel visual-panel-side">
+                  <div className="visual-panel-dot" />
+                  <div className="visual-panel-line" />
+                  <div className="visual-panel-line visual-panel-line-short" />
+                </div>
+                <div className="visual-cursor" />
+                <div className="visual-code-lines"><span /><span /><span /><span /></div>
+              </div>
+              <div className="visual-state-label">{activeSkill === 0 ? "UX / UI SYSTEM" : activeSkill === 1 ? "CODE + IA" : "READY FOR BUILD"}</div>
+            </div>
           </div>
 
           {/* Right: skill list with progress bar */}
           <div className="design-tech-skills flex gap-[86px] items-center flex-1">
             {/* Progress bar */}
-            <div className="flex flex-col gap-2" style={{ height: 665, width: 6 }}>
+            <div className="design-tech-progress flex flex-col gap-2" style={{ height: 665, width: 6 }}>
               {skills.map((s, i) => (
                 <div
                   key={i}
-                  className="flex-1 rounded-[20px] relative overflow-hidden"
+                  className={`flex-1 rounded-[20px] relative overflow-hidden ${i === activeSkill ? "is-active" : ""}`}
                   style={{ background: "#efefef" }}
                 >
-                  {i === 0 && (
-                    <div className="absolute top-0 left-0 w-full rounded-[20px]" style={{ height: 166, background: "#232323" }} />
-                  )}
+                  <div className="absolute inset-0 rounded-[20px]" />
                 </div>
               ))}
             </div>
@@ -832,12 +879,12 @@ function DesignTechSection() {
             {/* Skills */}
             <div className="flex flex-col gap-16" style={{ width: 661 }}>
               {skills.map((s, i) => (
-                <div key={i} className="skill-row reveal-on-scroll flex gap-4 items-start">
+                <div key={i} className={`skill-row flex gap-4 items-start ${i === activeSkill ? "is-active" : ""}`}>
                   <div
                     className="flex-shrink-0 flex items-center justify-center p-[10.8px] rounded-[32px] relative"
                     style={{
-                      background: s.active ? "#000" : "#d5d5d5",
-                      boxShadow: s.active
+                      background: i === activeSkill ? "#000" : "#d5d5d5",
+                      boxShadow: i === activeSkill
                         ? "0px 0px 0px 1.35px #828282, inset 0px 2.7px 5.4px 0px rgba(255,255,255,0.4)"
                         : "0px 0px 0px 1.35px #d6d6d6",
                     }}
@@ -852,10 +899,10 @@ function DesignTechSection() {
                     <div
                       className="text-[25px] text-black tracking-[-0.8px] leading-[36.7px]"
                       style={{
-                        fontFamily: s.active
+                        fontFamily: i === activeSkill
                           ? "'Bricolage Grotesque:Bold', 'Bricolage Grotesque', sans-serif"
                           : "'Bricolage Grotesque:SemiBold', 'Bricolage Grotesque', sans-serif",
-                        fontWeight: s.active ? 700 : 600,
+                        fontWeight: i === activeSkill ? 700 : 600,
                         fontVariationSettings: '"opsz" 14, "wdth" 100'
                       }}
                     >
@@ -878,15 +925,49 @@ function DesignTechSection() {
   );
 }
 
-function CTACard() {
+function CTACard({ onOpenContact }: { onOpenContact: () => void }) {
   return (
     <section className="bg-white overflow-hidden relative" style={{ height: 568 }}>
-      <div className="absolute" style={{ left: 156, top: "50%", transform: "translateY(-50%)", width: 1608, height: 467 }}>
+      <div className="cta-inner absolute" style={{ left: 156, top: "50%", transform: "translateY(-50%)", width: 1608, height: 467 }}>
         {/* Background gray panel */}
         <div
-          className="absolute bg-[#f8f8f8] rounded-[24px]"
+          className="cta-panel absolute bg-[#f8f8f8] rounded-[24px]"
           style={{ width: 1608, height: 390, left: "50%", top: "50%", transform: "translate(-50%, calc(-50% + 38.5px))" }}
-        />
+        >
+          <div className="cta-content absolute flex flex-col items-center" style={{ left: "50%", top: 74, transform: "translateX(-50%)" }}>
+            <h2
+              className="text-center text-[54px] tracking-[-3.116px] leading-none whitespace-nowrap"
+              style={{ fontFamily: "'DM Sans:SemiBold', 'DM Sans', sans-serif", fontWeight: 600, fontVariationSettings: '"opsz" 14', color: "#2c2c2c" }}
+            >
+              À la recherche d'un Designer
+              <br />
+              <span className="text-[#949494]">qui comprend la réalité du Code ?</span>
+            </h2>
+            <div className="cta-actions mt-[34px] flex items-center gap-[26px]">
+              <a
+                href="/assets/CV_Johan_KABO_Product_Designer - New.pdf"
+                download="CV_Johan_KABO_Product_Designer - New.pdf"
+                className="flex h-[74px] items-center gap-[11px] rounded-full bg-[#1e1e1e] pl-[10px] pr-[26px] text-white shadow-[inset_0px_4px_4px_rgba(255,255,255,0.25)] transition-transform hover:scale-[1.03]"
+                aria-label="Télécharger le CV de Johan Kabo"
+              >
+                <span className="flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white">
+                  <img src={imgCvDocument} alt="" className="h-[21.6px] w-[16.8px] shrink-0 object-contain" />
+                </span>
+                <span className="whitespace-nowrap text-[20px] tracking-[-1.098px]" style={{ fontFamily: "'Inter:Semi Bold', Inter, sans-serif", fontWeight: 600 }}>
+                  Télécharger Mon CV
+                </span>
+              </a>
+              <button
+                type="button"
+                onClick={onOpenContact}
+                className="flex h-[74px] items-center justify-center rounded-full border border-[#e1e1e1] bg-white px-6 text-[#1e1e1e] shadow-[0px_4px_4px_rgba(213,213,213,0.25)] transition-transform hover:scale-[1.03]"
+                style={{ fontFamily: "'Inter:Semi Bold', Inter, sans-serif", fontWeight: 600, fontSize: 20, letterSpacing: "-1.098px" }}
+              >
+                Me contacter
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Black card */}
         <div
@@ -952,15 +1033,31 @@ function CTACard() {
   );
 }
 
-function Footer() {
+const footerTaglines = [
+  "des interfaces pensées pour durer.",
+  "du concept au code sans déperdition.",
+  "donnez vie à vos idées ?",
+];
+
+function Footer({ onOpenContact }: { onOpenContact: () => void }) {
+  const [taglineIndex, setTaglineIndex] = useState(0);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setTaglineIndex((currentIndex) => (currentIndex + 1) % footerTaglines.length);
+    }, 3000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   return (
-    <footer id="contact" className="bg-black px-[156px] pt-[55px] pb-[106px]">
+    <footer id="contact" className="mt-[100px] bg-black px-[156px] pt-[55px] pb-[106px]">
       <div className="flex flex-col gap-[44px]">
         {/* Main heading */}
         <div className="flex flex-col gap-0">
           <div className="flex items-center justify-between">
             <h2
-              className="footer-reveal text-white text-[76px] tracking-[-2.28px] leading-[72px]"
+              className="footer-title text-white text-[76px] tracking-[-2.28px] leading-[72px]"
               style={{ fontFamily: "'Inter:Medium', Inter, sans-serif", fontWeight: 500 }}
             >
               Hello à tous,
@@ -973,10 +1070,14 @@ function Footer() {
             </span>
           </div>
           <h2
-            className="footer-reveal text-[#828282] text-[71px] tracking-[-2.28px] leading-[72px]"
+            aria-live="polite"
+            aria-atomic="true"
+            className="footer-title footer-tagline text-[#828282] text-[71px] tracking-[-2.28px] leading-[72px]"
             style={{ fontFamily: "'Inter:Medium', Inter, sans-serif", fontWeight: 500 }}
           >
-            des solutions pour chacun.
+            <span key={taglineIndex} className="footer-tagline-enter">
+              {footerTaglines[taglineIndex]}
+            </span>
           </h2>
         </div>
 
@@ -1023,7 +1124,7 @@ function Footer() {
             >
               <a href="#projets" className="hover:text-gray-300 transition-colors">Projets</a>
               <a href="#services" className="hover:text-gray-300 transition-colors">Services</a>
-              <a href="#contact" className="hover:text-gray-300 transition-colors">Contact</a>
+              <button type="button" onClick={onOpenContact} className="text-left hover:text-gray-300 transition-colors">Contact</button>
             </div>
           </div>
         </div>
@@ -1042,18 +1143,207 @@ function Footer() {
   );
 }
 
+function ContactOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [submitState, setSubmitState] = useState<"idle" | "sending" | "ready" | "error">("idle");
+  const [isClosing, setIsClosing] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const formContentRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
+  const isClosingRef = useRef(false);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  const beginCloseRef = useRef<() => void>(() => {});
+  beginCloseRef.current = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+    setIsClosing(true);
+    closeTimerRef.current = window.setTimeout(() => onCloseRef.current(), 640);
+  };
+
+  useLayoutEffect(() => {
+    if (!isOpen) {
+      isClosingRef.current = false;
+      setIsClosing(false);
+      return;
+    }
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    setSubmitState("idle");
+    dialog.focus();
+
+    const fitContent = () => {
+      const dialog = dialogRef.current;
+      const content = formContentRef.current;
+      if (!dialog || !content) return;
+
+      content.style.transform = "none";
+      content.style.transformOrigin = "top left";
+      content.style.width = "100%";
+      content.style.height = "auto";
+      const headerHeight = dialog.querySelector<HTMLElement>(".contact-header")?.offsetHeight ?? 0;
+      const wrapper = dialog.querySelector<HTMLElement>(".contact-dialog-content");
+      const wrapperStyle = wrapper ? window.getComputedStyle(wrapper) : null;
+      const verticalPadding = wrapperStyle
+        ? parseFloat(wrapperStyle.paddingTop) + parseFloat(wrapperStyle.paddingBottom)
+        : 0;
+      const availableHeight = Math.max(240, dialog.clientHeight - headerHeight - verticalPadding - 64);
+      const naturalHeight = content.scrollHeight;
+      const scale = Math.min(1, Math.max(.55, availableHeight / naturalHeight));
+      content.style.transform = `scale(${scale})`;
+      content.style.width = `${100 / scale}%`;
+      content.style.height = `${naturalHeight * scale}px`;
+    };
+
+    fitContent();
+    window.addEventListener("resize", fitContent);
+    window.visualViewport?.addEventListener("resize", fitContent);
+    document.fonts.ready.then(fitContent);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") beginCloseRef.current();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", fitContent);
+      window.visualViewport?.removeEventListener("resize", fitContent);
+      if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    };
+  }, [isOpen]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setSubmitState("sending");
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/kabojohan@gmail.com", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          _replyto: formData.get("email"),
+          message: formData.get("message"),
+          _subject: `Nouveau message portfolio - ${formData.get("name")}`,
+          _template: "table",
+        }),
+      });
+      const result: { success?: boolean | string } = await response.json();
+
+      if (!response.ok || result.success === false || result.success === "false") {
+        throw new Error("FormSubmit rejected the message");
+      }
+
+      setSubmitState("ready");
+    } catch {
+      setSubmitState("error");
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="contact-overlay"
+      data-closing={isClosing}
+      onMouseDown={(event) => { if (event.target === event.currentTarget) beginCloseRef.current(); }}
+      role="presentation"
+    >
+      <div
+        ref={dialogRef}
+        className="contact-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="contact-title"
+        tabIndex={-1}
+      >
+        <div className="contact-dialog-content">
+          <header className="contact-header">
+            <div className="contact-heading">
+              <h2 id="contact-title">Travaillons ensemble</h2>
+              <p>Remplissez le formulaire ci dessous.</p>
+            </div>
+            <button type="button" className="contact-close" onClick={() => beginCloseRef.current()} aria-label="Fermer le formulaire de contact">
+              <span />
+              <span />
+            </button>
+          </header>
+
+          <div ref={formContentRef} className="contact-form-content">
+            <div className="contact-profile">
+              <div className="contact-profile-image">
+                <img src={imgImage88} alt="Johan Kabo" />
+              </div>
+              <div>
+                <p>Johan kabo</p>
+                <a href="mailto:kabojohan@gmail.com">kabojohan@gmail.com</a>
+              </div>
+            </div>
+
+            <form className="contact-form" onSubmit={handleSubmit}>
+              <div className="contact-name-email">
+                <label className="contact-field">
+                  <span>Nom</span>
+                  <input name="name" type="text" autoComplete="name" required />
+                </label>
+                <label className="contact-field">
+                  <span>Email</span>
+                  <input name="email" type="email" autoComplete="email" required />
+                </label>
+              </div>
+              <label className="contact-field contact-message-field">
+                <span>Envoyez moi un message</span>
+                <textarea name="message" rows={5} placeholder="Parlez-moi brièvement de vos besoins, du timing ou de vos objectifs.." required />
+              </label>
+              <button className="contact-submit" type="submit" disabled={submitState === "sending"}>
+                {submitState === "sending" && <span className="contact-submit-spinner" aria-hidden="true" />}
+                {submitState === "ready" ? "Message envoyé !" : submitState === "sending" ? "Envoi..." : submitState === "error" ? "Réessayer" : "Envoyer le message"}
+              </button>
+              {submitState === "ready" && <p className="contact-status" role="status">Merci, ton message a été transmis. Si c’est le premier envoi, confirme l’activation FormSubmit reçue par e-mail.</p>}
+              {submitState === "error" && <p className="contact-status contact-status-error" role="alert">L’envoi a échoué. Vérifie ta connexion et réessaie.</p>}
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
   return (
     <div className="portfolio-shell w-full">
-      <Navbar />
-      <HeroSection />
+      <Navbar onOpenContact={() => setIsContactOpen(true)} />
+      <HeroSection onOpenContact={() => setIsContactOpen(true)} />
       <ClientLogos />
       <ProjectsSection />
       <AboutSection />
       <DesignTechSection />
-      <CTACard />
-      <Footer />
-      <div className="bottom-scroll-blur" aria-hidden="true" />
+      <CTACard onOpenContact={() => setIsContactOpen(true)} />
+      <Footer onOpenContact={() => setIsContactOpen(true)} />
+      <ContactOverlay isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+      <div className="bottom-scroll-blur" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
     </div>
   );
 }
