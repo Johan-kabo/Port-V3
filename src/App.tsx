@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import DesignTechSection from "./DesignTechSection";
+import ProjectDetailContent, { type ProjectId } from "./ProjectDetailContent";
 
 const assetPathPrefix = "/assets";
 
@@ -9,7 +10,6 @@ const imgImage88 = `${assetPathPrefix}/362d9.png`;
 const imgFrame47 = `${assetPathPrefix}/7fe5d.png`;
 const imgImage2076 = `${assetPathPrefix}/c0389.png`;
 const imgLogoMstVersionNoire11 = `${assetPathPrefix}/99908.png`;
-const imgLogoVitale1 = `${assetPathPrefix}/dacce.png`;
 const imgLogosMtn1Layerstyle1 = `${assetPathPrefix}/87d1d.png`;
 const imgImage12 = `${assetPathPrefix}/8f4d2.png`;
 const imgLogoSabc1 = `${assetPathPrefix}/393e7.png`;
@@ -19,14 +19,13 @@ const imgLogoBvmac1 = `${assetPathPrefix}/25ce6.png`;
 const imgLogoPad1 = `${assetPathPrefix}/bf43a.png`;
 const imgImage2080 = `${assetPathPrefix}/f790f.png`;
 const imgImage2081 = `${assetPathPrefix}/8ff17.png`;
-const imgIPhone15ProMockup = `${assetPathPrefix}/4525d.png`;
-const imgMockupSmartphoneGauche = `${assetPathPrefix}/d92f5.png`;
+const imgMutzigStarScreen = `${assetPathPrefix}/mutzig-star-screen.png`;
+const imgMutzigStarMotif = `${assetPathPrefix}/mutzig-star-motif.svg`;
 const imgDisplayingNextLevel = `${assetPathPrefix}/60165.png`;
 const imgLogYamoNxtLvl = `${assetPathPrefix}/b3a8f.png`;
 const imgImage2074 = `${assetPathPrefix}/65e07.png`;
 const imgLightningBolt1 = `${assetPathPrefix}/a251a.png`;
 const imgFamiconsMailOpen = `${assetPathPrefix}/b32c5.svg`;
-const imgEllipse1 = `${assetPathPrefix}/9f66d.svg`;
 const imgComponent1 = `${assetPathPrefix}/74068.svg`;
 const imgLightningBolt = `${assetPathPrefix}/77a05.svg`;
 
@@ -206,7 +205,7 @@ function HeroSection({ onOpenContact }: { onOpenContact: () => void }) {
       {/* Hero content */}
       <div className="hero-content relative flex flex-col items-center gap-12 px-6 pt-[262px] pb-[96px]">
         {/* Headline row 1 */}
-        <div className="flex flex-col items-center gap-6 w-full max-w-[1920px]">
+        <div className="hero-desktop-title flex flex-col items-center gap-6 w-full max-w-[1920px]">
           <div className="flex flex-col items-center gap-[18px] w-full">
             {/* "Hello, je suis [photo] Johan KABO" */}
             <div className="hero-line reveal-stagger flex items-center gap-3 justify-center whitespace-nowrap" style={{ height: 81 }}>
@@ -292,6 +291,27 @@ function HeroSection({ onOpenContact }: { onOpenContact: () => void }) {
           </p>
         </div>
 
+        <div className="hero-mobile-title" aria-label="Hello, je suis Johan KABO. UI/UX Designer, je transforme les problèmes en produits numériques simples.">
+          <div className="hero-mobile-line">
+            <span className="hero-mobile-muted">Hello, je suis</span>
+            <span className="hero-mobile-avatar"><img src={imgImage88} alt="" /></span>
+            <span className="hero-mobile-name">Johan KABO</span>
+          </div>
+          <div className="hero-mobile-line"><span>UI/UX Designer,</span></div>
+          <div className="hero-mobile-line"><span>Je transforme</span></div>
+          <div className="hero-mobile-line">
+            <span>les problèmes</span>
+            <span className="hero-mobile-pill"><img src={imgFrame47} alt="" /></span>
+            <span>en</span>
+          </div>
+          <div className="hero-mobile-line"><span>produits numériques</span></div>
+          <div className="hero-mobile-line">
+            <span className="hero-mobile-pill"><img src={imgImage2076} alt="" /></span>
+            <span>simples.</span>
+          </div>
+        </div>
+        <p className="hero-mobile-subtitle">UX/UI · Produit · IA · Technologie</p>
+
         {/* CTA Buttons */}
         <div className="hero-cta reveal-stagger flex items-center gap-[26.361px]">
           <button
@@ -313,7 +333,10 @@ function HeroSection({ onOpenContact }: { onOpenContact: () => void }) {
 
           <button
             type="button"
-            onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            onClick={() => {
+              const target = window.matchMedia("(max-width: 767px)").matches ? "moi" : "services";
+              document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
             className="magnetic-button bg-white border border-[#e1e1e1] flex items-center justify-center px-6 rounded-full cursor-pointer hover:bg-gray-50 transition-colors shadow-[0px_4.4px_4.4px_0px_rgba(213,213,213,0.25)]"
             style={{ height: 73.592 }}
           >
@@ -338,15 +361,6 @@ function ClientLogos() {
       render: () => (
         <div className="bg-white flex items-center justify-center flex-shrink-0 overflow-hidden px-[38px] py-[9px]" style={{ width: 304, height: 73 }}>
           <img src={imgLogoMstVersionNoire11} alt="MutzigSTAR" className="object-contain opacity-50 w-full" style={{ aspectRatio: "368/88" }} />
-        </div>
-      ),
-    },
-    {
-      alt: "Vitale",
-      containerWidth: 113,
-      render: () => (
-        <div className="bg-white flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ width: 113, height: 73 }}>
-          <img src={imgLogoVitale1} alt="Vitale" className="object-contain opacity-40" style={{ width: 88, height: 86 }} />
         </div>
       ),
     },
@@ -423,12 +437,12 @@ function ClientLogos() {
       style={{ borderTop: "0.793px solid #dedede", borderBottom: "0.793px solid #dedede" }}
     >
       <div
-        className="flex items-center mx-auto"
+        className="client-logo-layout flex items-center mx-auto"
         style={{ maxWidth: 1608, padding: "0 52px", gap: 38, height: 124 }}
       >
         {/* Label — sur la même ligne, ne rétrécit pas */}
         <p
-          className="flex-shrink-0 text-[#545454] leading-none"
+          className="client-logo-label flex-shrink-0 text-[#545454] leading-none"
           style={{
             fontFamily: "'Inter:Medium', Inter, sans-serif",
             fontWeight: 500,
@@ -473,17 +487,21 @@ function ClientLogos() {
 function ProjectCard({
   title,
   subtitle,
+  onClick,
   children,
+  visualStyle,
 }: {
   title: string;
   subtitle: string;
+  onClick?: () => void;
   children: React.ReactNode;
+  visualStyle?: React.CSSProperties;
 }) {
   return (
-    <div className="project-card reveal-on-scroll flex flex-col gap-[17px]" style={{ width: "calc(50% - 32px)" }}>
+    <div className={`project-card reveal-on-scroll flex flex-col gap-[17px] ${onClick ? "project-card-is-clickable" : ""}`} onClick={onClick} onKeyDown={(event) => { if (onClick && (event.key === "Enter" || event.key === " ")) onClick(); }} role={onClick ? "link" : undefined} tabIndex={onClick ? 0 : undefined} style={{ width: "calc(50% - 32px)" }}>
       <div
         className="bg-[#f5f5f5] rounded-[20px] overflow-hidden px-[18px] py-[20px] flex flex-col"
-        style={{ height: 613 }}
+        style={{ height: 613, ...visualStyle }}
       >
         {children}
       </div>
@@ -509,7 +527,7 @@ function ProjectCard({
   );
 }
 
-function ProjectsSection() {
+function ProjectsSection({ onOpenProject }: { onOpenProject: (project: ProjectId) => void }) {
   return (
     <section id="projets" className="projects-section bg-white px-[152px] py-[96px]">
       <div className="project-cursor" aria-hidden="true">View project</div>
@@ -528,7 +546,7 @@ function ProjectsSection() {
         {/* Row 1 */}
         <div className="projects-row flex gap-16">
           {/* DanmaGenesis */}
-          <ProjectCard title="DanmaGenesis" subtitle="Plateforme IA de text to audio et text to image">
+          <ProjectCard title="DanmaGenesis" subtitle="Plateforme IA de text to audio et text to image" onClick={() => onOpenProject("danmagenesis")}>
             <div className="flex gap-[13px] flex-1">
               <div className="flex-1 bg-[#e6e6e6] rounded-[14px] overflow-hidden relative">
                 <img src={imgImage2080} alt="DanmaGenesis" className="project-parallax absolute max-w-none pointer-events-none" style={{ width: 655, height: 879, left: -147, top: 0.23 }} />
@@ -539,69 +557,12 @@ function ProjectsSection() {
             </div>
           </ProjectCard>
 
-          {/* Mon Coach Vitale */}
-          <ProjectCard title="Mon Coach Vitale" subtitle="Application mobile de santé, de bien-être ...">
-            <div className="flex gap-[13px] flex-1">
-              {/* Left panel — green */}
-              <div
-                className="flex-1 rounded-[14px] overflow-hidden relative"
-                style={{ background: "linear-gradient(-90deg, rgb(0,75,35) 0%, rgb(2,122,58) 75%)" }}
-              >
-                <img
-                  src={imgIPhone15ProMockup}
-                  alt="Coach Vitale mockup"
-                  className="absolute max-w-none pointer-events-none"
-                  style={{ width: 459, height: 614, left: 22, top: 150 }}
-                />
-                <p
-                  className="absolute text-[#fdfdfd] text-[38px] tracking-[-1.9px] leading-none top-[27px] left-[27px] w-[308px]"
-                  style={{ fontFamily: "'Inter:Regular', Inter, sans-serif", fontWeight: 400 }}
-                >
-                  Prêt à révéler votre vitalité ?
-                </p>
-              </div>
-              {/* Right panel — green */}
-              <div
-                className="flex-1 rounded-[14px] overflow-hidden relative"
-                style={{ background: "linear-gradient(-90deg, rgb(0,75,35) 0%, rgb(2,122,58) 75%)" }}
-              >
-                <div
-                  className="absolute flex items-center justify-center"
-                  style={{ width: 405, height: 547, left: 55, top: -214, transform: "rotate(7.14deg)" }}
-                >
-                  <div className="relative overflow-hidden" style={{ width: 344, height: 508 }}>
-                    <img src={imgMockupSmartphoneGauche} alt="" className="absolute max-w-none" style={{ width: "100.18%", height: "154.77%", left: "-0.12%", top: "-20.62%" }} />
-                  </div>
-                </div>
-                <img src={imgEllipse1} alt="" className="absolute max-w-none pointer-events-none" style={{ width: 577.778, height: 511, left: 0.5, top: 305.23 }} />
-                <img
-                  src={imgIPhone15ProMockup}
-                  alt=""
-                  className="absolute max-w-none pointer-events-none"
-                  style={{ width: 459, height: 614, left: -351.5, top: 144.23 }}
-                />
-                <p
-                  className="absolute text-right text-[36px] tracking-[-1.8px] leading-none"
-                  style={{
-                    fontFamily: "'Inter:Regular', Inter, sans-serif",
-                    fontWeight: 400,
-                    color: "#38b000",
-                    right: 0,
-                    top: 426.23,
-                    width: 258,
-                  }}
-                >
-                  Votre Coach dans la poche, disponible 24h/7
-                </p>
-              </div>
-            </div>
-          </ProjectCard>
         </div>
 
         {/* Row 2 */}
         <div className="projects-row flex gap-16">
           {/* YaMo NXT LVL */}
-          <ProjectCard title="YaMo NXT LVL" subtitle="Plateforme de la plus grande communauté jeune...">
+          <ProjectCard title="YaMo NXT LVL" subtitle="Plateforme de la plus grande communauté jeune..." onClick={() => onOpenProject("yamo-nxt-lvl")}>
             <div className="flex-1 relative overflow-hidden rounded-[14px]" style={{ background: "linear-gradient(180deg, #131313 52%, #ffcb05 136%)" }}>
               <img
                 src={imgDisplayingNextLevel}
@@ -619,20 +580,36 @@ function ProjectsSection() {
           </ProjectCard>
 
           {/* MützigSTAR */}
-          <ProjectCard title="MützigSTAR" subtitle="Site web du plus grand concours musical ...">
-            <div className="flex gap-[13px] flex-1">
-              <div className="flex-1 bg-[#e6e6e6] rounded-[14px] overflow-hidden relative">
-                <img src={imgImage2080} alt="MützigSTAR" className="absolute max-w-none pointer-events-none" style={{ width: 655, height: 879, left: -147, top: 0.23 }} />
+          <ProjectCard title="MützigSTAR" subtitle="Site web du plus grand concours musical ..." onClick={() => onOpenProject("mutzig-star")} visualStyle={{ height: "auto", aspectRatio: "772 / 613" }}>
+            <div className="flex flex-1" style={{ gap: "1.68%" }}>
+              <div className="flex-1 bg-[#a6192e] rounded-[14px] overflow-hidden relative">
+                <div className="absolute overflow-hidden" style={{ left: "-5.81%", top: "17.8%", width: "152.42%", height: "102.09%" }}>
+                  <img
+                    src={imgMutzigStarMotif}
+                    alt=""
+                    className="absolute max-w-none pointer-events-none"
+                    style={{ width: "567.95%", height: "273.85%", left: 0, top: "14.02%" }}
+                  />
+                </div>
+                <img src={imgMutzigStarScreen} alt="" className="absolute top-0 max-w-none pointer-events-none" style={{ width: "250.35%", left: "-17.15%", aspectRatio: "2400 / 1792" }} />
               </div>
-              <div className="flex-1 bg-[#e6e6e6] rounded-[14px] overflow-hidden relative">
-                <img src={imgImage2081} alt="MützigSTAR 2" className="absolute max-w-none pointer-events-none" style={{ width: 474, height: 636, left: -105.5, top: "calc(50% + 0.73px)", transform: "translateY(-50%)" }} />
+              <div className="flex-1 bg-[#a6192e] rounded-[14px] overflow-hidden relative">
+                <div className="absolute overflow-hidden" style={{ left: "-111.34%", top: "17.8%", width: "152.42%", height: "102.09%" }}>
+                  <img
+                    src={imgMutzigStarMotif}
+                    alt=""
+                    className="absolute max-w-none pointer-events-none"
+                    style={{ width: "567.95%", height: "273.85%", left: 0, top: "14.02%" }}
+                  />
+                </div>
+                <img src={imgMutzigStarScreen} alt="" className="absolute top-0 max-w-none pointer-events-none" style={{ width: "250.35%", left: "-119.64%", aspectRatio: "2400 / 1792" }} />
               </div>
             </div>
           </ProjectCard>
         </div>
 
         {/* "Voir tous les projets" */}
-        <div className="flex items-center justify-center gap-3">
+        <div className="projects-all-link flex items-center justify-center gap-3">
           <span
             className="text-[22px] text-black tracking-[-1px] leading-none"
             style={{ fontFamily: "'DM Sans:Medium', 'DM Sans', sans-serif", fontWeight: 500, fontVariationSettings: '"opsz" 14' }}
@@ -654,19 +631,19 @@ function AboutSection() {
   ];
 
   return (
-    <section id="moi" className="bg-white px-[156px] py-[96px]">
+    <section id="moi" className="about-section bg-white px-[156px] py-[96px]">
       {/* Heading */}
       <h2
-        className="text-[62px] tracking-[-3px] leading-none mb-[64px]"
+        className="about-heading text-[62px] tracking-[-3px] leading-none mb-[64px]"
         style={{ fontFamily: "'DM Sans:SemiBold', 'DM Sans', sans-serif", fontWeight: 600, fontVariationSettings: '"opsz" 14', color: "#2c2c2c", maxWidth: 1349 }}
       >
-        Concevoir des expériences qui créent<br />
+        Concevoir des expériences qui créent<br className="about-heading-break" />
         de la valeur pour les utilisateurs et les entreprises.
       </h2>
 
-      <div className="flex gap-[66px] items-start">
+      <div className="about-layout flex gap-[66px] items-start">
         {/* Left: photo + name */}
-        <div className="flex flex-col gap-6 flex-shrink-0" style={{ width: 508 }}>
+        <div className="about-profile flex flex-col gap-6 flex-shrink-0" style={{ width: 508 }}>
           <div
             className="about-photo rounded-[32px] overflow-hidden relative"
             style={{
@@ -677,7 +654,7 @@ function AboutSection() {
             <img
               src={imgImage2074}
               alt="Johan kabo"
-              className="absolute max-w-none object-cover pointer-events-none"
+              className="about-portrait absolute max-w-none object-cover pointer-events-none"
               style={{ width: 692, height: 923, left: "50%", transform: "translateX(calc(-50% - 81px))", top: 0 }}
             />
           </div>
@@ -698,7 +675,7 @@ function AboutSection() {
         </div>
 
         {/* Right: bio + work history */}
-        <div className="flex flex-col gap-[66px] flex-1">
+        <div className="about-copy flex flex-col gap-[66px] flex-1">
           {/* Bio */}
           <div
             className="text-[25px] text-black text-justify tracking-[-0.8px] leading-[36.7px]"
@@ -942,9 +919,22 @@ function CTACard({ onOpenContact }: { onOpenContact: () => void }) {
               className="text-center text-[54px] tracking-[-3.116px] leading-none whitespace-nowrap"
               style={{ fontFamily: "'DM Sans:SemiBold', 'DM Sans', sans-serif", fontWeight: 600, fontVariationSettings: '"opsz" 14', color: "#2c2c2c" }}
             >
-              À la recherche d'un Designer
-              <br />
-              <span className="text-[#949494]">qui comprend la réalité du Code ?</span>
+              <span className="cta-title-desktop">
+                À la recherche d'un Designer
+                <br />
+                <span className="text-[#949494]">qui comprend la réalité du Code ?</span>
+              </span>
+              <span className="cta-title-mobile">
+                À la recherche
+                <br />
+                d'un Designer
+                <br />
+                <span className="text-[#949494]">
+                  qui comprend la réalité
+                  <br />
+                  du Code ?
+                </span>
+              </span>
             </h2>
             <div className="cta-actions mt-[34px] flex items-center gap-[26px]">
               <a
@@ -1037,6 +1027,7 @@ function CTACard({ onOpenContact }: { onOpenContact: () => void }) {
 }
 
 const footerTaglines = [
+  "des solutions pour chacun.",
   "des interfaces pensées pour durer.",
   "du concept au code sans déperdition.",
   "donnez vie à vos idées ?",
@@ -1126,7 +1117,18 @@ function Footer({ onOpenContact }: { onOpenContact: () => void }) {
               style={{ fontFamily: "'Inter:Medium', Inter, sans-serif", fontWeight: 500 }}
             >
               <a href="#projets" className="hover:text-gray-300 transition-colors">Projets</a>
-              <a href="#services" className="hover:text-gray-300 transition-colors">Services</a>
+              <a
+                href="#services"
+                className="hover:text-gray-300 transition-colors"
+                onClick={(event) => {
+                  if (window.matchMedia("(max-width: 767px)").matches) {
+                    event.preventDefault();
+                    document.getElementById("moi")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+              >
+                Services
+              </a>
               <button type="button" onClick={onOpenContact} className="text-left hover:text-gray-300 transition-colors">Contact</button>
             </div>
           </div>
@@ -1302,11 +1304,11 @@ function ContactOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
               <div className="contact-name-email">
                 <label className="contact-field">
                   <span>Nom</span>
-                  <input name="name" type="text" autoComplete="name" required />
+                  <input name="name" type="text" autoComplete="name" placeholder="Votre nom" required />
                 </label>
                 <label className="contact-field">
                   <span>Email</span>
-                  <input name="email" type="email" autoComplete="email" required />
+                  <input name="email" type="email" autoComplete="email" placeholder="vous@exemple.com" required />
                 </label>
               </div>
               <label className="contact-field contact-message-field">
@@ -1329,13 +1331,27 @@ function ContactOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
 
 export default function App() {
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [openProject, setOpenProject] = useState<ProjectId | null>(null);
+
+  if (openProject) {
+    return (
+      <div className="portfolio-shell w-full">
+        <Navbar onOpenContact={() => setIsContactOpen(true)} />
+        <ProjectDetailContent projectId={openProject} onBack={() => setOpenProject(null)} />
+        <ClientLogos />
+        <CTACard onOpenContact={() => setIsContactOpen(true)} />
+        <Footer onOpenContact={() => setIsContactOpen(true)} />
+        <ContactOverlay isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="portfolio-shell w-full">
       <Navbar onOpenContact={() => setIsContactOpen(true)} />
       <HeroSection onOpenContact={() => setIsContactOpen(true)} />
       <ClientLogos />
-      <ProjectsSection />
+      <ProjectsSection onOpenProject={setOpenProject} />
       <AboutSection />
       <DesignTechSection />
       <CTACard onOpenContact={() => setIsContactOpen(true)} />
