@@ -557,28 +557,6 @@ function ProjectsSection({ onOpenProject }: { onOpenProject: (project: ProjectId
             </div>
           </ProjectCard>
 
-        </div>
-
-        {/* Row 2 */}
-        <div className="projects-row flex gap-16">
-          {/* YaMo NXT LVL */}
-          <ProjectCard title="YaMo NXT LVL" subtitle="Plateforme de la plus grande communauté jeune..." onClick={() => onOpenProject("yamo-nxt-lvl")}>
-            <div className="flex-1 relative overflow-hidden rounded-[14px]" style={{ background: "linear-gradient(180deg, #131313 52%, #ffcb05 136%)" }}>
-              <img
-                src={imgDisplayingNextLevel}
-                alt="YaMo NXT LVL"
-                className="absolute object-cover pointer-events-none"
-                style={{ width: 738, height: 550, left: "50%", transform: "translateX(-50%)", top: 115 }}
-              />
-              <img
-                src={imgLogYamoNxtLvl}
-                alt="YaMo NXT LVL logo"
-                className="absolute object-cover pointer-events-none"
-                style={{ width: 246, height: 59, left: "50%", transform: "translateX(-50%)", top: 56 }}
-              />
-            </div>
-          </ProjectCard>
-
           {/* MützigSTAR */}
           <ProjectCard title="MützigSTAR" subtitle="Site web du plus grand concours musical ..." onClick={() => onOpenProject("mutzig-star")} visualStyle={{ height: "auto", aspectRatio: "772 / 613" }}>
             <div className="flex flex-1" style={{ gap: "1.68%" }}>
@@ -604,6 +582,28 @@ function ProjectsSection({ onOpenProject }: { onOpenProject: (project: ProjectId
                 </div>
                 <img src={imgMutzigStarScreen} alt="" className="absolute top-0 max-w-none pointer-events-none" style={{ width: "250.35%", left: "-119.64%", aspectRatio: "2400 / 1792" }} />
               </div>
+            </div>
+          </ProjectCard>
+
+        </div>
+
+        {/* Row 2 */}
+        <div className="projects-row flex justify-center gap-16">
+          {/* YaMo NXT LVL */}
+          <ProjectCard title="YaMo NXT LVL" subtitle="Plateforme de la plus grande communauté jeune..." onClick={() => onOpenProject("yamo-nxt-lvl")}>
+            <div className="flex-1 relative overflow-hidden rounded-[14px]" style={{ background: "linear-gradient(180deg, #131313 52%, #ffcb05 136%)" }}>
+              <img
+                src={imgDisplayingNextLevel}
+                alt="YaMo NXT LVL"
+                className="absolute object-cover pointer-events-none"
+                style={{ width: 738, height: 550, left: "50%", transform: "translateX(-50%)", top: 115 }}
+              />
+              <img
+                src={imgLogYamoNxtLvl}
+                alt="YaMo NXT LVL logo"
+                className="absolute object-cover pointer-events-none"
+                style={{ width: 246, height: 59, left: "50%", transform: "translateX(-50%)", top: 56 }}
+              />
             </div>
           </ProjectCard>
         </div>
